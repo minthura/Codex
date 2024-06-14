@@ -1,13 +1,13 @@
 package com.minthuya.codex
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 import com.minthuya.codex.di.DaggerApplicationComponent
 import com.minthuya.coreappsdk.core.CoreApp
 import com.minthuya.navigationkit.CoreAppNavType
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var coreApp: CoreApp

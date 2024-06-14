@@ -3,45 +3,63 @@ package com.minthuya.sample
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.minthuya.component.parent
 import com.minthuya.networkkit.UiResult
 import com.minthuya.sample.di.DaggerSampleComponent
 import com.minthuya.sample.ui.SampleViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SampleActivity : AppCompatActivity() {
+class SampleActivity : ComponentActivity() {
 
     @Inject
     lateinit var viewModel: SampleViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        DaggerSampleComponent.factory().create(this, parent()).inject(this)
         super.onCreate(savedInstanceState)
+        DaggerSampleComponent.factory().create(this, baseContext.parent()).inject(this)
         enableEdgeToEdge()
-        setContentView(R.layout.sample_activity)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect {
-                    val tv = findViewById<TextView>(R.id.txt_output)
-                    when (it) {
-                        is UiResult.Error -> tv.text = "code: ${it.error?.code}, message: ${it.error?.type}"
-                        is UiResult.Loading -> tv.text = "Loading.."
-                        is UiResult.Success -> tv.text = it.body?.weather?.firstOrNull()?.main
-                    }
+        setContent {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            titleContentColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        title = {
+                            Text("Welcome")
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                val uiState = viewModel.uiState.collectAsState()
+                Column(
+                    modifier = Modifier
+                        .padding(innerPadding),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = when (uiState.value) {
+                            is UiResult.Error -> "Fetch error"
+                            is UiResult.Loading -> "Loading.."
+                            is UiResult.Success -> uiState.value.body?.weather?.firstOrNull()?.main.orEmpty()
+                        }
+                    )
                 }
             }
         }
