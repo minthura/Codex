@@ -2,5 +2,5 @@ plugins {
     alias(libs.plugins.codex.platform.plugin)
 }
 dependencies {
-    implementation libs.androidx.appcompat
+    implementation libs.androidx.activity.compose
 }

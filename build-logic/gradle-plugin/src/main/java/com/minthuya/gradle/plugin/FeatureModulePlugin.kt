@@ -25,7 +25,13 @@ class FeatureModulePlugin : Plugin<Project> {
             namespace = "com.minthuya.${project.name}"
             resourcePrefix = project.name
             buildFeatures.apply {
-                viewBinding = true
+                compose = true
+            }
+            composeOptions.apply {
+                kotlinCompilerExtensionVersion = "1.5.1"
+            }
+            packaging.apply {
+                resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
             }
         }
         /* <------- Android Block ------> */
