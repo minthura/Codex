@@ -4,6 +4,8 @@ import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 class FeatureModulePlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -18,6 +20,10 @@ class FeatureModulePlugin : Plugin<Project> {
         project.pluginManager.apply(libs.findPlugin("jetbrains.kotlin.parcelize").get().get().pluginId)
         project.pluginManager.apply(libs.findPlugin("navigation.safeargs.kotlin").get().get().pluginId)
         /* <------- Apply Plugins ------> */
+
+        project.extensions.configure(JavaPluginExtension::class.java) { javaExt ->
+            javaExt.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+        }
 
         /* <------- Android Block ------> */
         val android = project.extensions.findByType(LibraryExtension::class.java)
